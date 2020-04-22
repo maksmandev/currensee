@@ -1,0 +1,8 @@
+export const TELEGRAM_MODULE = 'TELEGRAM_MODULE';
+export const TELEGRAM_TOKEN = 'TELEGRAM_TOKEN';
+
+export const START_COMMAND = 'START_COMMAND';
+export const USD_COMMAND = 'USD_COMMAND';
+export const EUR_COMMAND = 'EUR_COMMAND';
+export const RUR_COMMAND = 'RUR_COMMAND';
+export const BTC_COMMAND = 'BTC_COMMAND';
