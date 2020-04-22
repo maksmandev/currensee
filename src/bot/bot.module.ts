@@ -5,9 +5,10 @@ import * as TelegramBot from 'node-telegram-bot-api';
 import { ApiModule } from '../api/api.module';
 import { BotService } from './bot.service';
 import { TELEGRAM_MODULE, TELEGRAM_TOKEN } from './bot.constants';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [ApiModule],
+  imports: [ApiModule, UsersModule],
   providers: [
     BotService,
     {
