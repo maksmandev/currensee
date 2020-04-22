@@ -4,6 +4,7 @@ import * as TelegramBot from 'node-telegram-bot-api';
 import { Cron } from '@nestjs/schedule';
 
 import { ApiService } from '../api/api.service';
+import { UsersService } from '../users/users.service';
 import { Message } from './interfaces/message.interface';
 import {
   TELEGRAM_MODULE,
@@ -20,19 +21,19 @@ export class BotService {
     @Inject(TELEGRAM_MODULE) private readonly telegramBot: TelegramBot,
     private readonly apiService: ApiService,
     private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
   ) {}
-
-  private users = [];
 
   private getCommand(message: string): string {
     return this.configService.get<string>(message);
   }
 
-  @Cron('* 10 * * * *')
+  @Cron('0 30 10 * * 1-5')
   async sendDaily() {
     const data = await this.apiService.getDailyRates();
-    this.users.forEach(id => {
-      this.telegramBot.sendMessage(id, data);
+    const users = await this.usersService.findAll();
+    users.forEach(user => {
+      this.telegramBot.sendMessage(user.id, data);
     });
   }
 
@@ -41,9 +42,13 @@ export class BotService {
       const {
         text,
         chat: { id },
+        from: {
+          id: userId,
+          username,
+          first_name: firstName,
+          last_name: lastName,
+        },
       } = message;
-
-      this.users = [id, ...this.users];
 
       const command = text.toUpperCase();
       let data: string;
@@ -51,7 +56,13 @@ export class BotService {
       switch (command) {
         case this.getCommand(START_COMMAND):
           data =
-            '👋 Hi, please send me one of currencies (usd 🇺🇸, eur 🇪🇺, rur, btc)';
+            '👋 Hi, please send me one of currencies (usd 🇺🇸, eur 🇪🇺, rur 🇷🇺, btc 🌐)';
+          await this.usersService.create({
+            id: userId,
+            username,
+            firstName,
+            lastName,
+          });
           break;
         case this.getCommand(USD_COMMAND):
           data = await this.apiService.getRateByKey(command);
@@ -68,7 +79,9 @@ export class BotService {
         default:
           data = `Please, send existing currency 🇺🇸 🇪🇺 🇷🇺 🌐`;
       }
-      this.telegramBot.sendMessage(id, data);
+      this.telegramBot.sendMessage(id, data).catch(console.error);
     });
+
+    this.telegramBot.on('polling_error', error => console.error(error));
   }
 }
