@@ -10,7 +10,6 @@ import {
   TELEGRAM_MODULE,
   USD_COMMAND,
   EUR_COMMAND,
-  RUR_COMMAND,
   BTC_COMMAND,
   START_COMMAND,
 } from './bot.constants';
@@ -56,7 +55,7 @@ export class BotService {
       switch (command) {
         case this.getCommand(START_COMMAND):
           data =
-            '👋 Hi, please send me one of currencies (usd 🇺🇸, eur 🇪🇺, rur 🇷🇺, btc 🌐)';
+            '👋 Hi, please send me one of currencies (usd 🇺🇸, eur 🇪🇺, btc 🌐)';
           await this.usersService.create({
             id: userId,
             username,
@@ -70,14 +69,11 @@ export class BotService {
         case this.getCommand(EUR_COMMAND):
           data = await this.apiService.getRateByKey(command);
           break;
-        case this.getCommand(RUR_COMMAND):
-          data = await this.apiService.getRateByKey(command);
-          break;
         case this.getCommand(BTC_COMMAND):
           data = await this.apiService.getRateByKey(command);
           break;
         default:
-          data = `Please, send existing currency 🇺🇸 🇪🇺 🇷🇺 🌐`;
+          data = `Please, send existing currency 🇺🇸 🇪🇺 🌐`;
       }
       this.telegramBot.sendMessage(id, data).catch(console.error);
     });
